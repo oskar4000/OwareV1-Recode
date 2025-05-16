@@ -121,7 +121,7 @@ task.spawn(function()
 
     -- Module loading sequence
     local moduleLoadOrder = {
-        {name = "Aimbot", url = "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Aimbott.lua"},
+        {name = "Aimbot", url = "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Aimbot.lua"},
         {name = "ESP", url = "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/ESP.lua"},
         {name = "Misc", url = "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Misc.lua"},
         {name = "Movement", url = "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Movement.lua"}
