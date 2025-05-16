@@ -1,0 +1,22 @@
+   Name = "👽OwareV1👽",
+   LoadingTitle = "Made For FPS Combat",
+   LoadingSubtitle = "by 0skar12345_86784 On Discord",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "ConfigSave",
+      FileName = "OwareV1"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "n7uBZDpV",
+      RememberJoins = true
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Key ! OwareV1",
+      Subtitle = "Key System",
+      Note = "Join our [Discord](https://discord.gg/n7uBZDpV) to get the key",
+      FileName = "OwareV1Key",
+      SaveKey = true,
+      GrabKeyFromSite = true,
+      Key = {"https://pastebin.com/raw/Sge1uUwm"}
