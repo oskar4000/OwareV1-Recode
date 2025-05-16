@@ -1,28 +1,53 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/refs/heads/main/start", true))()
+   Name = "👽OwareV1👽",
+   LoadingTitle = "Made For FPS Combat",
+   LoadingSubtitle = "by 0skar12345_86784 On Discord",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "ConfigSave",
+      FileName = "OwareV1"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "n7uBZDpV",
+      RememberJoins = true
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Key ! OwareV1",
+      Subtitle = "Key System",
+      Note = "Join our [Discord](https://discord.gg/n7uBZDpV) to get the key",
+      FileName = "OwareV1Key",
+      SaveKey = true,
+      GrabKeyFromSite = true,
+      Key = {"https://pastebin.com/raw/Sge1uUwm"}
    }
 })
 
 Rayfield:LoadConfiguration()
 
-local MainTab = Window:CreateTab("💢Main💢", nil)
+-- Load modules
+local function LoadModule(name, url)
+    local success, err = pcall(function()
+        loadstring(game:HttpGet(url, true))(Rayfield, Window)
+    end)
+    if not success then
+        warn("Failed to load "..name..": "..err)
+        Rayfield:Notify({
+            Title = "Load Error",
+            Content = name.." failed to load",
+            Duration = 6.5
+        })
+    end
+end
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/refs/heads/main/Aimbott", true))()
+LoadModule("Aimbot", "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Aimbott")
+LoadModule("ESP", "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/ESP")
+LoadModule("Misc", "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Misc")
+LoadModule("Movement", "https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Movement")
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/refs/heads/main/ESP", true))()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/refs/heads/main/Misc", true))()
-----------------------
--- MOVEMENT SECTION --
-----------------------
-local MoveTab = Window:CreateTab("🏃‍♀️‍➡️Movement🏃‍♀️‍➡️", nil)
-local MovementSection = MoveTab:CreateSection("Movement Modifiers")
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/refs/heads/main/Movement", true))()
-
--- Initial notification
 Rayfield:Notify({
    Title = "👽OwareV1👽 Loaded",
    Content = "Key verified successfully!",
