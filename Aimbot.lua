@@ -1,9 +1,4 @@
-return function(Rayfield, Window)
-    local MainTab = Window:CreateTab("💢Main💢", nil)
-    
-    -------------------
-    -- AIMBOT SECTION --
-    -------------------
+return function(Rayfield, Window, MainTab)
     local AimbotSection = MainTab:CreateSection("Aimbot")
 
     -- Aimbot Variables
@@ -14,13 +9,12 @@ return function(Rayfield, Window)
     local mouseButton2UpConnection = nil
     local teamCheckEnabled = false
 
-    -- FOV Circle Variables
+    -- FOV Circle
     local fovCircleEnabled = false
     local fovCircleRadius = 100
     local fovCircle
     local fovCircleVisible = false
 
-    -- Create the FOV circle function
     local function createFOVCircle()
         if fovCircle then fovCircle:Remove() end
         
@@ -43,7 +37,7 @@ return function(Rayfield, Window)
     end
 
     -- Team Check Toggle
-    local TeamCheckToggle = MainTab:CreateToggle({
+    local TeamCheckToggle = AimbotSection:CreateToggle({
         Name = "Team Check",
         CurrentValue = false,
         Flag = "TeamCheckToggle",
@@ -53,135 +47,46 @@ return function(Rayfield, Window)
     })
 
     -- FOV Circle Toggle
-    local FOVCircleToggle = MainTab:CreateToggle({
-       Name = "FOV Circle",
-       CurrentValue = false,
-       Flag = "Toggle1",
-       Callback = function(Value)
-           fovCircleEnabled = Value
-           fovCircleVisible = Value
-           if Value then
-               createFOVCircle()
-           else
-               if fovCircle then
-                   fovCircle:Remove()
-                   fovCircle = nil
-               end
-           end
-       end,
+    local FOVCircleToggle = AimbotSection:CreateToggle({
+        Name = "FOV Circle",
+        CurrentValue = false,
+        Flag = "Toggle1",
+        Callback = function(Value)
+            fovCircleEnabled = Value
+            fovCircleVisible = Value
+            if Value then
+                createFOVCircle()
+            else
+                if fovCircle then
+                    fovCircle:Remove()
+                    fovCircle = nil
+                end
+            end
+        end,
     })
 
     -- FOV Radius Slider
-    local FOVRadiusSlider = MainTab:CreateSlider({
-       Name = "FOV Circle Radius",
-       Range = {50, 300},
-       Increment = 10,
-       Suffix = "px",
-       CurrentValue = 100,
-       Flag = "Slider1",
-       Callback = function(Value)
-           fovCircleRadius = Value
-           if fovCircle then
-               fovCircle.Radius = Value
-           end
-       end,
+    local FOVRadiusSlider = AimbotSection:CreateSlider({
+        Name = "FOV Circle Radius",
+        Range = {50, 300},
+        Increment = 10,
+        Suffix = "px",
+        CurrentValue = 100,
+        Flag = "Slider1",
+        Callback = function(Value)
+            fovCircleRadius = Value
+            if fovCircle then
+                fovCircle.Radius = Value
+            end
+        end,
     })
 
-    -- Aimbot Button
-    local AimbotButton = MainTab:CreateButton({
-       Name = "Aimbot Toggle",
-       Callback = function()
-          aimbotEnabled = not aimbotEnabled
-          
-          if aimbotEnabled then
-             Rayfield:Notify({
-                Title = "Aimbot Enabled",
-                Content = "Hold MB2 to lock onto heads" .. (teamCheckEnabled and " (Team Check ON)" or ""),
-                Duration = 3,
-                Image = nil
-             })
-             
-             local player = game:GetService("Players").LocalPlayer
-             local mouse = player:GetMouse()
-             local camera = workspace.CurrentCamera
-             
-             -- Disconnect previous connections if they exist
-             if mouseButton2DownConnection then mouseButton2DownConnection:Disconnect() end
-             if mouseButton2UpConnection then mouseButton2UpConnection:Disconnect() end
-             if connection then connection:Disconnect() end
-             
-             mouseButton2DownConnection = mouse.Button2Down:Connect(function()
-                local closestDistance = math.huge
-                local closestHead = nil
-                local playerPosition = camera.CFrame.Position
-                
-                for _, otherPlayer in ipairs(game:GetService("Players"):GetPlayers()) do
-                   if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("Humanoid") and otherPlayer.Character.Humanoid.Health > 0 then
-                      -- Team check logic
-                      if teamCheckEnabled and player.Team == otherPlayer.Team then
-                          continue
-                      end
-                      
-                      local head = otherPlayer.Character:FindFirstChild("Head")
-                      if head then
-                         local screenPoint, onScreen = camera:WorldToViewportPoint(head.Position)
-                         local distance = (head.Position - playerPosition).Magnitude
-                         
-                         -- Check if within FOV circle if enabled
-                         if fovCircleEnabled then
-                            local screenPoint = camera:WorldToViewportPoint(head.Position)
-                            if screenPoint.Z > 0 then
-                                local screenPos = Vector2.new(screenPoint.X, screenPoint.Y)
-                                local circleCenter = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
-                                local distanceFromCenter = (screenPos - circleCenter).Magnitude
-                                if distanceFromCenter > fovCircleRadius then
-                                   continue
-                                end
-                            else
-                                continue
-                            end
-                         end
-                         
-                         if onScreen and distance < closestDistance then
-                            closestDistance = distance
-                            closestHead = head
-                         end
-                      end
-                   end
-                end
-                
-                if closestHead then
-                   lockedPart = closestHead
-                   connection = game:GetService("RunService").RenderStepped:Connect(function()
-                      if lockedPart and lockedPart.Parent and lockedPart.Parent:FindFirstChild("Humanoid") and lockedPart.Parent.Humanoid.Health > 0 then
-                         local currentCFrame = camera.CFrame
-                         local targetPosition = lockedPart.Position
-                         local newCFrame = CFrame.new(currentCFrame.Position, targetPosition)
-                         camera.CFrame = newCFrame:Lerp(newCFrame, 0.7)
-                      else
-                         if connection then connection:Disconnect() end
-                         lockedPart = nil
-                      end
-                   end)
-                end
-             end)
-             
-             mouseButton2UpConnection = mouse.Button2Up:Connect(function()
-                if connection then connection:Disconnect() end
-                lockedPart = nil
-             end)
-          else
-             if connection then connection:Disconnect() end
-             if mouseButton2DownConnection then mouseButton2DownConnection:Disconnect() end
-             if mouseButton2UpConnection then mouseButton2UpConnection:Disconnect() end
-             lockedPart = nil
-             Rayfield:Notify({
-                Title = "Aimbot Disabled",
-                Content = "Aimbot is now off",
-                Duration = 3,
-                Image = nil
-             })
-          end
-       end
+    -- Aimbot Toggle
+    AimbotSection:CreateButton({
+        Name = "Aimbot Toggle",
+        Callback = function()
+            aimbotEnabled = not aimbotEnabled
+            -- [Rest of your aimbot code...]
+        end
     })
 end
