@@ -1,124 +1,120 @@
-return function(Rayfield, Window, MainTab)
-    local MiscSection = MainTab:CreateSection("Miscellaneous")
+local Misc = {}
 
-    -- Spin Bot
-    local spinBot = {
-        Enabled = false,
-        Speed = 10,
-        Connection = nil
-    }
+function Misc.Init(tab)
+    -- Spin Bot Variables
+    local spinBotEnabled = false
+    local spinBotSpeed = 10 -- rotations per second
+    local spinBotConnection = nil
 
-    local function updateSpinBot()
-        if spinBot.Connection then
-            spinBot.Connection:Disconnect()
-            spinBot.Connection = nil
-        end
-
-        if spinBot.Enabled then
-            spinBot.Connection = game:GetService("RunService").RenderStepped:Connect(function(delta)
-                local character = game.Players.LocalPlayer.Character
-                if character then
-                    local root = character:FindFirstChild("HumanoidRootPart")
-                    if root then
-                        root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(spinBot.Speed * 360 * delta), 0)
-                    end
-                end
-            end)
-        end
-    end
-
-    MiscSection:CreateToggle({
-        Name = "Spin Bot",
-        CurrentValue = spinBot.Enabled,
-        Callback = function(Value)
-            spinBot.Enabled = Value
-            updateSpinBot()
-            Rayfield:Notify({
-                Title = "Spin Bot "..(Value and "Enabled" or "Disabled"),
-                Content = Value and "Your character is now spinning" or "Spin bot deactivated",
-                Duration = 3
-            })
-        end
+    -- Spin Bot Toggle
+    local SpinBotToggle = tab:CreateToggle({
+       Name = "Spin Bot",
+       CurrentValue = false,
+       Flag = "Toggle5",
+       Callback = function(Value)
+           spinBotEnabled = Value
+           if spinBotEnabled then
+               -- Start spinning
+               if spinBotConnection then spinBotConnection:Disconnect() end
+               
+               spinBotConnection = game:GetService("RunService").RenderStepped:Connect(function(delta)
+                   if spinBotEnabled then
+                       local character = game.Players.LocalPlayer.Character
+                       if character then
+                           local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                           if humanoidRootPart then
+                               -- Rotate the character without affecting the camera
+                               humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.Angles(0, math.rad(spinBotSpeed * 360 * delta), 0)
+                           end
+                       end
+                   end
+               end)
+               
+               Rayfield:Notify({
+                   Title = "Spin Bot Enabled",
+                   Content = "Your character is now spinning",
+                   Duration = 3,
+                   Image = nil
+               })
+           else
+               -- Stop spinning
+               if spinBotConnection then
+                   spinBotConnection:Disconnect()
+                   spinBotConnection = nil
+               end
+               Rayfield:Notify({
+                   Title = "Spin Bot Disabled",
+                   Content = "Spin bot is now off",
+                   Duration = 3,
+                   Image = nil
+               })
+           end
+       end,
     })
 
-    MiscSection:CreateSlider({
-        Name = "Spin Speed",
-        Range = {1, 30},
-        Increment = 1,
-        Suffix = "rotations/sec",
-        CurrentValue = spinBot.Speed,
-        Callback = function(Value)
-            spinBot.Speed = Value
-            if spinBot.Enabled then
-                updateSpinBot()
-            end
-        end
+    -- Spin Bot Speed Slider
+    local SpinBotSpeedSlider = tab:CreateSlider({
+       Name = "Spin Bot Speed",
+       Range = {1, 30},
+       Increment = 1,
+       Suffix = "rotations/sec",
+       CurrentValue = 10,
+       Flag = "Slider3",
+       Callback = function(Value)
+           spinBotSpeed = Value
+       end,
     })
 
-    -- FOV Changer
-    local fovChanger = {
-        Enabled = false,
-        Value = 70,
-        Default = 70,
-        Changed = false
-    }
+    -- FOV Changer Variables
+    local fovChangerEnabled = false
+    local defaultFOV = 70
+    local currentFOV = 70
+    local fovChanged = false
 
-    local function updateFOV()
-        local camera = workspace.CurrentCamera
-        if camera then
-            camera.FieldOfView = fovChanger.Enabled and fovChanger.Value or fovChanger.Default
-            fovChanger.Changed = fovChanger.Enabled
-        end
-    end
-
-    MiscSection:CreateToggle({
-        Name = "FOV Changer",
-        CurrentValue = fovChanger.Enabled,
-        Callback = function(Value)
-            fovChanger.Enabled = Value
-            updateFOV()
-            Rayfield:Notify({
-                Title = "FOV Changer "..(Value and "Enabled" or "Disabled"),
-                Content = Value and string.format("FOV set to %d", fovChanger.Value) or "FOV reset to default",
-                Duration = 3
-            })
-        end
+    -- FOV Changer Toggle
+    local FOVChangerToggle = tab:CreateToggle({
+       Name = "FOV Changer",
+       CurrentValue = false,
+       Flag = "Toggle4",
+       Callback = function(Value)
+           fovChangerEnabled = Value
+           if fovChangerEnabled then
+               game:GetService("Workspace").CurrentCamera.FieldOfView = currentFOV
+               fovChanged = true
+               Rayfield:Notify({
+                   Title = "FOV Changer Enabled",
+                   Content = "Field of View has been modified",
+                   Duration = 3,
+                   Image = nil
+               })
+           else
+               game:GetService("Workspace").CurrentCamera.FieldOfView = defaultFOV
+               fovChanged = false
+               Rayfield:Notify({
+                   Title = "FOV Changer Disabled",
+                   Content = "Field of View reset to default",
+                   Duration = 3,
+                   Image = nil
+               })
+           end
+       end,
     })
 
-    MiscSection:CreateSlider({
-        Name = "FOV Value",
-        Range = {50, 120},
-        Increment = 5,
-        Suffix = "°",
-        CurrentValue = fovChanger.Value,
-        Callback = function(Value)
-            fovChanger.Value = Value
-            if fovChanger.Enabled then
-                updateFOV()
-            end
-        end
+    -- FOV Value Slider
+    local FOVSlider = tab:CreateSlider({
+       Name = "FOV Value",
+       Range = {50, 120},
+       Increment = 5,
+       Suffix = "°",
+       CurrentValue = defaultFOV,
+       Flag = "Slider2",
+       Callback = function(Value)
+           currentFOV = Value
+           if fovChangerEnabled and fovChanged then
+               game:GetService("Workspace").CurrentCamera.FieldOfView = currentFOV
+           end
+       end,
     })
-
-    -- Character added event
-    game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
-        if not fovChanger.Changed then
-            task.wait(0.5)
-            local camera = workspace.CurrentCamera
-            if camera then
-                camera.FieldOfView = fovChanger.Default
-            end
-        end
-    end)
-
-    -- Cleanup
-    Window:AddUnloadCallback(function()
-        if spinBot.Connection then
-            spinBot.Connection:Disconnect()
-        end
-        
-        local camera = workspace.CurrentCamera
-        if camera then
-            camera.FieldOfView = fovChanger.Default
-        end
-    end)
 end
+
+return Misc
