@@ -1,123 +1,192 @@
-return function(Rayfield, Window, MainTab, MovementTab)
-    -- Section setup
-    local MovementSection = MovementTab:CreateSection("Movement", "Enhanced mobility options")
+local Movement = {}
 
-    -- Movement State
-    local Movement = {
-        WalkSpeed = {
-            Enabled = false,
-            Value = 50,
-            Default = 16
-        },
-        JumpPower = {
-            Enabled = false,
-            Value = 100,
-            Default = 50
-        },
-        InfiniteJump = {
-            Enabled = false
-        },
-        Connections = {}
-    }
+function Movement.Init(tab)
+    -- WalkSpeed Variables
+    local walkSpeedEnabled = false
+    local defaultWalkSpeed = 16
+    local currentWalkSpeed = 50
+    local walkSpeedConnection = nil
 
-    -- Apply movement modifications
-    local function UpdateMovement()
-        local character = game:GetService("Players").LocalPlayer.Character
-        if not character then return end
-
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if not humanoid then return end
-
-        if Movement.WalkSpeed.Enabled then
-            humanoid.WalkSpeed = Movement.WalkSpeed.Value
-        else
-            humanoid.WalkSpeed = Movement.WalkSpeed.Default
-        end
-
-        if Movement.JumpPower.Enabled then
-            humanoid.JumpPower = Movement.JumpPower.Value
-        else
-            humanoid.JumpPower = Movement.JumpPower.Default
-        end
-    end
-
-    -- Infinite jump handler
-    local function UpdateInfiniteJump()
-        for _, conn in pairs(Movement.Connections) do
-            pcall(function() conn:Disconnect() end)
-        end
-        Movement.Connections = {}
-
-        if Movement.InfiniteJump.Enabled then
-            table.insert(Movement.Connections, game:GetService("UserInputService").JumpRequest:Connect(function()
-                local character = game:GetService("Players").LocalPlayer.Character
-                if character then
-                    local humanoid = character:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                    end
-                end
-            end))
-        end
-    end
-
-    -- UI Elements
-    MovementSection:CreateToggle({
-        Name = "WalkSpeed",
-        CurrentValue = Movement.WalkSpeed.Enabled,
+    -- WalkSpeed Toggle
+    local WalkSpeedToggle = tab:CreateToggle({
+        Name = "WalkSpeed Modifier",
+        CurrentValue = false,
+        Flag = "WalkSpeedToggle",
         Callback = function(Value)
-            Movement.WalkSpeed.Enabled = Value
-            UpdateMovement()
-        end
+            walkSpeedEnabled = Value
+            local humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            
+            if walkSpeedEnabled then
+                if humanoid then
+                    humanoid.WalkSpeed = currentWalkSpeed
+                end
+                walkSpeedConnection = game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+                    task.wait(0.5) -- Wait for character to fully load
+                    humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.WalkSpeed = currentWalkSpeed
+                    end
+                end)
+                Rayfield:Notify({
+                    Title = "WalkSpeed Enabled",
+                    Content = "Your WalkSpeed has been modified to " .. currentWalkSpeed,
+                    Duration = 3,
+                    Image = nil
+                })
+            else
+                if walkSpeedConnection then
+                    walkSpeedConnection:Disconnect()
+                end
+                if humanoid then
+                    humanoid.WalkSpeed = defaultWalkSpeed
+                end
+                Rayfield:Notify({
+                    Title = "WalkSpeed Disabled",
+                    Content = "Your WalkSpeed has been reset to default",
+                    Duration = 3,
+                    Image = nil
+                })
+            end
+        end,
     })
 
-    MovementSection:CreateSlider({
+    -- WalkSpeed Slider
+    local WalkSpeedSlider = tab:CreateSlider({
         Name = "WalkSpeed Value",
         Range = {16, 200},
         Increment = 1,
-        Suffix = "studs/s",
-        CurrentValue = Movement.WalkSpeed.Value,
+        Suffix = "studs",
+        CurrentValue = currentWalkSpeed,
+        Flag = "WalkSpeedSlider",
         Callback = function(Value)
-            Movement.WalkSpeed.Value = Value
-            if Movement.WalkSpeed.Enabled then
-                UpdateMovement()
+            currentWalkSpeed = Value
+            if walkSpeedEnabled then
+                local humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = currentWalkSpeed
+                end
             end
-        end
+        end,
     })
 
-    MovementSection:CreateToggle({
-        Name = "JumpPower",
-        CurrentValue = Movement.JumpPower.Enabled,
+    -- JumpPower Variables
+    local jumpPowerEnabled = false
+    local defaultJumpPower = 50
+    local currentJumpPower = 100
+    local jumpPowerConnection = nil
+
+    -- JumpPower Toggle
+    local JumpPowerToggle = tab:CreateToggle({
+        Name = "JumpPower Modifier",
+        CurrentValue = false,
+        Flag = "JumpPowerToggle",
         Callback = function(Value)
-            Movement.JumpPower.Enabled = Value
-            UpdateMovement()
-        end
+            jumpPowerEnabled = Value
+            local humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            
+            if jumpPowerEnabled then
+                if humanoid then
+                    humanoid.JumpPower = currentJumpPower
+                end
+                jumpPowerConnection = game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+                    task.wait(0.5) -- Wait for character to fully load
+                    humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.JumpPower = currentJumpPower
+                    end
+                end)
+                Rayfield:Notify({
+                    Title = "JumpPower Enabled",
+                    Content = "Your JumpPower has been modified to " .. currentJumpPower,
+                    Duration = 3,
+                    Image = nil
+                })
+            else
+                if jumpPowerConnection then
+                    jumpPowerConnection:Disconnect()
+                end
+                if humanoid then
+                    humanoid.JumpPower = defaultJumpPower
+                end
+                Rayfield:Notify({
+                    Title = "JumpPower Disabled",
+                    Content = "Your JumpPower has been reset to default",
+                    Duration = 3,
+                    Image = nil
+                })
+            end
+        end,
     })
 
-    MovementSection:CreateSlider({
+    -- JumpPower Slider
+    local JumpPowerSlider = tab:CreateSlider({
         Name = "JumpPower Value",
         Range = {50, 200},
         Increment = 5,
         Suffix = "power",
-        CurrentValue = Movement.JumpPower.Value,
+        CurrentValue = currentJumpPower,
+        Flag = "JumpPowerSlider",
         Callback = function(Value)
-            Movement.JumpPower.Value = Value
-            if Movement.JumpPower.Enabled then
-                UpdateMovement()
+            currentJumpPower = Value
+            if jumpPowerEnabled then
+                local humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.JumpPower = currentJumpPower
+                end
             end
-        end
+        end,
     })
 
-    MovementSection:CreateToggle({
+    -- Infinite Jump Variables
+    local infiniteJumpEnabled = false
+    local infiniteJumpConnection = nil
+
+    -- Infinite Jump Toggle
+    local InfiniteJumpToggle = tab:CreateToggle({
         Name = "Infinite Jump",
-        CurrentValue = Movement.InfiniteJump.Enabled,
+        CurrentValue = false,
+        Flag = "InfiniteJumpToggle",
         Callback = function(Value)
-            Movement.InfiniteJump.Enabled = Value
-            UpdateInfiniteJump()
-        end
+            infiniteJumpEnabled = Value
+            
+            if infiniteJumpEnabled then
+                Rayfield:Notify({
+                    Title = "Infinite Jump Enabled",
+                    Content = "You can now jump infinitely!",
+                    Duration = 3,
+                    Image = nil
+                })
+                
+                -- Disconnect previous connection if it exists
+                if infiniteJumpConnection then
+                    infiniteJumpConnection:Disconnect()
+                end
+                
+                -- Connect to UserInputService
+                infiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                    if infiniteJumpEnabled then
+                        local character = game:GetService("Players").LocalPlayer.Character
+                        if character then
+                            local humanoid = character:FindFirstChildOfClass("Humanoid")
+                            if humanoid then
+                                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                            end
+                        end
+                    end
+                end)
+            else
+                if infiniteJumpConnection then
+                    infiniteJumpConnection:Disconnect()
+                end
+                Rayfield:Notify({
+                    Title = "Infinite Jump Disabled",
+                    Content = "Normal jumping restored",
+                    Duration = 3,
+                    Image = nil
+                })
+            end
+        end,
     })
+end
 
-    -- Character tracking
-    table.insert(Movement.Connections, game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
-        task.wait(0.5) -- Wait for character to fully load
-        Update
+return Movement
