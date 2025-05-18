@@ -34,7 +34,7 @@ local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000
 local Misc = loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Misc.lua"))()
 local Movement = loadstring(game:HttpGet("https://raw.githubusercontent.com/oskar4000/OwareV1-Recode/main/Movement.lua"))()
 
--- Initialize modules with the Rayfield window
+-- Initialize modules with the Window object
 local MainTab = Window:CreateTab("💢Main💢", nil)
 Aimbot.Init(MainTab)
 ESP.Init(MainTab)
