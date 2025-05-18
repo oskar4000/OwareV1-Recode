@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "👽OwareV1👽",
-   LoadingTitle = "Made For FPS Combat",
+   LoadingTitle = "Join https://discord.gg/n7uBZDpV",
    LoadingSubtitle = "by 0skar12345_86784 On Discord",
    ConfigurationSaving = {
       Enabled = true,
@@ -11,14 +11,14 @@ local Window = Rayfield:CreateWindow({
    },
    Discord = {
       Enabled = true,
-      Invite = "n7uBZDpV",
+      Invite = "https://discord.gg/n7uBZDpV",
       RememberJoins = true
    },
-   KeySystem = true,
+   KeySystem = false,
    KeySettings = {
       Title = "Key ! OwareV1",
       Subtitle = "Key System",
-      Note = "Join our [Discord](https://discord.gg/n7uBZDpV) to get the key",
+      Note = "Join our discord!",
       FileName = "OwareV1Key",
       SaveKey = true,
       GrabKeyFromSite = true,
