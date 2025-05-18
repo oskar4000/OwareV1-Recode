@@ -1,6 +1,11 @@
 local Aimbot = {}
 
-function Aimbot.Init(tab)
+function Aimbot.Init(tab, rayfieldReference)
+    local Rayfield = rayfieldReference
+    
+    -- Create section first
+    local AimbotSection = tab:CreateSection("Aimbot")
+
     -- Aimbot Variables
     local aimbotEnabled = false
     local lockedPart = nil
@@ -113,17 +118,18 @@ function Aimbot.Init(tab)
                                 local screenPos = Vector2.new(screenPoint.X, screenPoint.Y)
                                 local circleCenter = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
                                 local distanceFromCenter = (screenPos - circleCenter).Magnitude
-                                if distanceFromCenter > fovCircleRadius then
-                                   continue -- Skip if outside FOV circle
+                                if distanceFromCenter <= fovCircleRadius then
+                                    if onScreen and distance < closestDistance then
+                                        closestDistance = distance
+                                        closestHead = head
+                                    end
                                 end
-                            else
-                                continue -- Skip if behind camera
                             end
-                         end
-                         
-                         if onScreen and distance < closestDistance then
-                            closestDistance = distance
-                            closestHead = head
+                         else
+                            if onScreen and distance < closestDistance then
+                                closestDistance = distance
+                                closestHead = head
+                            end
                          end
                       end
                    end
